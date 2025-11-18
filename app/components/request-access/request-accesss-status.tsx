@@ -86,49 +86,49 @@ export default function RequestAccessStatus() {
                 </div>
                 <div className="border border-theme_primary bg-white p-5 rounded-b-xl">
                     <div className="space-y-2 pb-4 border-b">
-                        <div className="flex">
+                        <div className="flex gap-4">
                             <span className="font-medium w-[30%] flex justify-end">Access Date : </span>
                             <span className="w-[70%]">{formatDate(dataSource?.requestAccess?.accessDate ?? "")}</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex gap-4">
                             <span className="font-medium w-[30%] flex justify-end">Building : </span>
                             <span className="w-[70%]">{buildingName}</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex gap-4">
                             <span className="font-medium w-[30%] flex justify-end">Floor : </span>
                             <span className="w-[70%]">{floorName}</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex gap-4">
                             <span className="font-medium w-[30%] flex justify-end">Area : </span>
                             <span className="w-[70%]">{areaName}</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex gap-4">
                             <span className="font-medium w-[30%] flex justify-end">Note : </span>
-                            <span className="w-[70%]">{dataSource?.requestAccess?.note ?? ""}</span>
+                            <span className="w-[70%]">{dataSource?.requestAccess?.note || "-"}</span>
                         </div>
                     </div>
                     <div className="space-y-4">
                         {dataSource?.requestAccessPeople?.map((item, index) => {
                             const genderName = dropdownMaster?.gender.find(e => e.id === item.genderId)?.nameEN;
                             return (
-                                <div className={`space-y-2 py-4 ${(index+1) < dataSource.requestAccessPeople.length ? "border-b" : ""}`}>
-                                    <div className="flex">
+                                <div key={item.id} className={`space-y-2 py-4 ${(index+1) < dataSource.requestAccessPeople.length ? "border-b" : ""}`}>
+                                    <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Gender : </span>
                                         <span className="w-[70%]">{genderName}</span>
                                     </div>
-                                    <div className="flex">
+                                    <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Firstname : </span>
                                         <span className="w-[70%]">{item.firstname}</span>
                                     </div>
-                                    <div className="flex">
+                                    <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Lastname : </span>
                                         <span className="w-[70%]">{item.lastname}</span>
                                     </div>
-                                    <div className="flex">
+                                    <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Email : </span>
-                                        <span className="w-[70%]">{item.email}</span>
+                                        <span className="w-[70%]">{item.email || "-"}</span>
                                     </div>
-                                    <div className="flex">
+                                    <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Phone number : </span>
                                         <span className="w-[70%]">{item.phoneNumber}</span>
                                     </div>
