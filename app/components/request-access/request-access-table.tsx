@@ -4,15 +4,14 @@ import { useCallback, useState } from "react";
 import { Column } from "../table/table";
 import { AppTable } from "../table/app-table";
 import { useRouter } from "next/navigation";
-import { NewsDto, NewsFilterDto, RequestAccessDto } from "@/app/lib/types";
+import { RequestAccessDto, RequestAccessFilterDto } from "@/app/lib/types";
 import { sortBy } from "@/app/lib/utils";
-import { defaultNewsFilter } from "@/app/lib/constants";
-import { formatDate, formatNumber } from "@/app/lib/utils";
+import { defaultRequestAccessFilter } from "@/app/lib/constants";
+import { formatDate } from "@/app/lib/utils";
 import { useLoadingStore } from "@/app/store";
 import Link from "next/link";
-import RequestAccessFilter from "./request-access-filter";
-import { getNews } from "@/app/lib/services";
 import AccessStatus from "./access-status";
+import { getRequestAccess } from "@/app/lib/services/request";
 
 const columns: Column<RequestAccessDto>[] = [
   {
@@ -21,7 +20,7 @@ const columns: Column<RequestAccessDto>[] = [
     class: "w-[15%]",
     sortable: false,
     render: (row) => (
-      <Link href={`/news/${row.id}/detail`} className="font-medium text-theme_link"> {row.requestNo} </Link>
+      <Link href={`/request-access/${row.id}/detail`} className="font-medium text-theme_link"> {row.requestNo} </Link>
     )
   },
   {
@@ -60,47 +59,47 @@ const columns: Column<RequestAccessDto>[] = [
   },
 ];
 
-export const userSorter = (data: NewsDto[], asc: boolean, col: string) => {
+export const userSorter = (data: RequestAccessDto[], asc: boolean, col: string) => {
   switch (col) {
     case "requestNo":
     case "buildingNameEN":
     case "floorNameEN":
     case "areaNameEN":
     case "accessStatusNameEN":
-      return sortBy(data, col as keyof NewsDto, "string", asc);
+      return sortBy(data, col as keyof RequestAccessDto, "string", asc);
     case "accessDate":
-      return sortBy(data, col as keyof NewsDto, "date", asc);
+      return sortBy(data, col as keyof RequestAccessDto, "date", asc);
     default:
       return data;
   }
 };
 
 export default function RequestAccessTable() {
-  const [filter, setfilter] = useState<NewsFilterDto>(defaultNewsFilter);
+  const [filter, setfilter] = useState<RequestAccessFilterDto>(defaultRequestAccessFilter);
   const [trigger, setTrigger] = useState(0);
 
   const { setLoading } = useLoadingStore((state) => state);
   const router = useRouter();
 
   const fetcherAction = useCallback(
-      () => getNews({...filter}),
+      () => getRequestAccess(),
     [filter]
   );
 
-  const handleSearch = (filter: NewsFilterDto) => {
-    setfilter(filter);
-    setTrigger((t) => t + 1);
-  };
+  // const handleSearch = (filter: RequestAccessFilterDto) => {
+  //   setfilter(filter);
+  //   setTrigger((t) => t + 1);
+  // };
 
   return (
-    <AppTable<NewsDto>
+    <AppTable<RequestAccessDto>
       title="Request Access"
-      FilterComponent={
-        <RequestAccessFilter
-          onSearch={(filter) => handleSearch(filter)}
-          onCreate={() => router.push("/request-access/0/detail")}
-        />
-      }
+      // FilterComponent={
+      //   <RequestAccessFilter
+      //     onSearch={(filter) => handleSearch(filter)}
+      //     onCreate={() => router.push("/request-access/0/detail")}
+      //   />
+      // }
       tableStyleClass="w-full"
       columns={columns}
       trigger={trigger}

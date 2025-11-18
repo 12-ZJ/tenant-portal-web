@@ -4,7 +4,6 @@ export function handleApiError(error: unknown): ApiError {
   let status = 500;
   let message = "An unknown server error occurred.";
   let url = "";
-  console.log("error:", error);
 
   if (
     error &&

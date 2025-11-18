@@ -22,8 +22,8 @@ import { AiOutlinePaperClip } from "react-icons/ai";
 const defaultError: Partial<Record<keyof SaveNewsDto, string>> = {
     topicTH: "",
     topicEN: "",
-    detailTh: "",
-    detailEn: "",
+    detailTH: "",
+    detailEN: "",
     newsTypeId: "",
     displayDateStart: "",
     displayDateEnd: "",
@@ -53,10 +53,10 @@ export default function NewsForm() {
         try {
             const type = await getNewsType({isActive: 1});
             const building = await getBuilding({isActive: 1});
-            const news = await getNewsDetail(id);
-            const newsBuilding = news.newsBuilding || [];
-            const newsAttachment = news.newsAttachment || [];
-            const data = mergeWithFallback<SaveNewsDto>(news, defaultNews);
+            const res = await getNewsDetail(id);
+            const newsBuilding = res.newsBuilding || [];
+            const newsAttachment = res.newsAttachment || [];
+            const data = mergeWithFallback<SaveNewsDto>(res.news, defaultNews);
 
             setTypeOption(type.map(e => ({ value: String(e.id), label: e.nameEN })));
             setBuildingMaster(building);
@@ -150,9 +150,8 @@ export default function NewsForm() {
             }))
         );
 
-        setAttachments(newAttachmentList);
-
-        setUploadFiles(files);
+        setAttachments(prev => [...(prev ?? []), ...newAttachmentList]);
+        setUploadFiles(prev => [...(prev ?? []), ...files]);
     };
 
     const handleRemoveAttachment = (value: string) => {
@@ -179,8 +178,8 @@ export default function NewsForm() {
         const fieldValidators = {
             topicTH: [validateRequired()],
             topicEN: [validateRequired()],
-            detailTh: [validateRequired()],
-            detailEn: [validateRequired()],
+            detailTH: [validateRequired()],
+            detailEN: [validateRequired()],
             newsTypeId: [validateRequired()],
             displayDateStart: [validateRequired()],
         };
@@ -197,8 +196,8 @@ export default function NewsForm() {
                 id: dataSource.id,
                 topicTH: dataSource.topicTH,
                 topicEN: dataSource.topicEN,
-                detailTh: dataSource.detailTh,
-                detailEn: dataSource.detailEn,
+                detailTH: dataSource.detailTH,
+                detailEN: dataSource.detailEN,
                 newsTypeId: dataSource.newsTypeId,
                 displayDateStart: dataSource.displayDateStart,
                 displayDateEnd: dataSource.displayDateEnd,
@@ -209,9 +208,13 @@ export default function NewsForm() {
                 isSafety: dataSource.isSafety
             },
             newsBuilding: buildings,
-            newsAttachment: attachments,
+            newsAttachment: attachments.map(item => ({
+                ...item,
+                base64: !!item.id ? "" : item.base64
+            })),
             userId: userId
         };
+        console.log("save payload:", data);
         await saveNews(data);
     };
 
@@ -238,7 +241,7 @@ export default function NewsForm() {
                     useRange={true}
                     disable={processing}
                     start={dataSource.displayDateStart ? new Date(dataSource.displayDateStart) : null}
-                    end={dataSource.displayDateStart ? new Date(dataSource.displayDateStart) : null}
+                    end={dataSource.displayDateEnd ? new Date(dataSource.displayDateEnd) : null}
                     onChange={(e) => handleMultiChange({
                         displayDateStart: e.startDate ? formatDate(e.startDate, "YYYY-MM-DD") : "",
                         displayDateEnd: e.endDate ? formatDate(e.endDate, "YYYY-MM-DD") : ""
@@ -264,22 +267,22 @@ export default function NewsForm() {
                     value={dataSource.topicEN}
                 />
             </InputLayout>
-            <InputLayout label={"Detail (TH)"} error={errors.detailTh}>
-                <textarea className={getInputClass(!!errors.detailTh)}
+            <InputLayout label={"Detail (TH)"} error={errors.detailTH}>
+                <textarea className={getInputClass(!!errors.detailTH)}
                     rows={10}
                     maxLength={1000}
                     disabled={processing}
-                    onChange={(e) => handleMultiChange({detailTh: e.target.value})}
-                    value={dataSource.detailTh}
+                    onChange={(e) => handleMultiChange({detailTH: e.target.value})}
+                    value={dataSource.detailTH}
                 />
             </InputLayout>
-            <InputLayout label={"Detail (EN)"} error={errors.detailEn}>
-                <textarea className={getInputClass(!!errors.detailEn)}
+            <InputLayout label={"Detail (EN)"} error={errors.detailEN}>
+                <textarea className={getInputClass(!!errors.detailEN)}
                     rows={10}
                     maxLength={1000}
                     disabled={processing}
-                    onChange={(e) => handleMultiChange({detailEn: e.target.value})}
-                    value={dataSource.detailEn}
+                    onChange={(e) => handleMultiChange({detailEN: e.target.value})}
+                    value={dataSource.detailEN}
                 />
             </InputLayout>
             <InputLayout label={"Building"} isRequired={false}>

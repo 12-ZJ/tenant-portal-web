@@ -4,8 +4,7 @@ import PageLayout from "@/app/layout/page-layout";
 
 export default async function Page() {
     return (
-        <PageLayout
-            header={<TopNav />}>
+        <PageLayout>
             <RequestAccessForm id={0} isSubmit={true} />
         </PageLayout>
     )

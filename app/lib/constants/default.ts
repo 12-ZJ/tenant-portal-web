@@ -1,4 +1,4 @@
-import { NewsFilterDto, RequestAccessDetailDto, RequestAccessModel, SaveNewsDto, SaveRequestAccess, SaveRequestAccessPeople } from "../types";
+import { NewsFilterDto, RequestAccessDetailDto, RequestAccessFilterDto, RequestAccessModel, SaveNewsDto, SaveRequestAccess, SaveRequestAccessPeople } from "../types";
 
 export const defaultNewsFilter: NewsFilterDto = {
     keyword: "",
@@ -7,12 +7,16 @@ export const defaultNewsFilter: NewsFilterDto = {
     isActive: 0
 }
 
+export const defaultRequestAccessFilter: RequestAccessFilterDto = {
+    keyword: ""
+}
+
 export const defaultNews: SaveNewsDto = {
     id: 0,
     topicTH: "",
     topicEN: "",
-    detailTh: "",
-    detailEn: "",
+    detailTH: "",
+    detailEN: "",
     newsTypeId: "",
     displayDateStart: "",
     displayDateEnd: "",

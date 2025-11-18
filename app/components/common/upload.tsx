@@ -33,7 +33,7 @@ const Upload: FC<UploadProps> = ({ multiple = true, onUpload, accept}) => {
             errors.forEach((e: { code: string; message: string }) => {
                 const message =
                     e.code === "file-too-large"
-                        ? `${file.name} is too large. Maximum allowed size is ${MAX_FILE_SIZE_MB.toFixed(0)} MB.`
+                        ? `${file.name} is too large. Maximum allowed size is ${MAX_FILE_SIZE_MB} MB.`
                         : `${file.name}: ${e.message}`;
                 toastWarning(message);
             });

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { SelectField, SearchInput, ActionButton } from "../common";
-import { NewsFilterDto, Option  } from "@/app/lib/types";
+import { NewsFilterDto, Option, RequestAccessFilterDto  } from "@/app/lib/types";
 import DatePicker from "../common/date-picker";
 import { createChangeHandler, handleApiErrorWithRedirect, handleRangeDateChange } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
@@ -13,12 +13,12 @@ import { getNewsType } from "@/app/lib/services";
 import { MdOutlineCreate } from "react-icons/md";
 
 interface Props {
-    onSearch: (filter: NewsFilterDto) => void;
+    onSearch: (filter: RequestAccessFilterDto) => void;
     onCreate: () => void;
 }
 
 const RequestAccessFilter = ({ onSearch, onCreate }: Props) => {
-    const [filter, setFilter] = useState<NewsFilterDto>(defaultNewsFilter);
+    const [filter, setFilter] = useState<RequestAccessFilterDto>(defaultNewsFilter);
     const [typeOption, setTypeOption] = useState<Option[]>([]);
     const [mounted, setMounted] = useState(false);
 

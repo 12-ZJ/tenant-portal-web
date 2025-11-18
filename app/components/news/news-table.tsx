@@ -7,8 +7,7 @@ import { useRouter } from "next/navigation";
 import { NewsDto, NewsFilterDto } from "@/app/lib/types";
 import { sortBy } from "@/app/lib/utils";
 import { defaultNewsFilter } from "@/app/lib/constants";
-import { formatDate, formatNumber } from "@/app/lib/utils";
-import { useLoadingStore } from "@/app/store";
+import { formatDate } from "@/app/lib/utils";
 import Link from "next/link";
 import NewsFilter from "./news-filter";
 import { getNews } from "@/app/lib/services";
@@ -78,7 +77,6 @@ export default function NewsTable() {
   const [filter, setfilter] = useState<NewsFilterDto>(defaultNewsFilter);
   const [trigger, setTrigger] = useState(0);
 
-  const { setLoading } = useLoadingStore((state) => state);
   const router = useRouter();
 
   const fetcherAction = useCallback(
@@ -86,8 +84,9 @@ export default function NewsTable() {
     [filter]
   );
 
-  const handleSearch = (filter: NewsFilterDto) => {
-    setfilter(filter);
+  const handleSearch = (newFilter: NewsFilterDto) => {
+    console.log(newFilter);
+    setfilter(newFilter);
     setTrigger((t) => t + 1);
   };
 

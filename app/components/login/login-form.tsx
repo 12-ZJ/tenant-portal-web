@@ -62,12 +62,12 @@ export default function LoginForm() {
 
     setProcessing(true);
     try {
-      const token = await login({
-        email: email,
-        password: password,
-      });
-      const tokenDecode = jwtDecode<UserInfo>(token);
-      setUserInfo(tokenDecode);
+      // const token = await login({
+      //   email: email,
+      //   password: password,
+      // });
+      // const tokenDecode = jwtDecode<UserInfo>(token);
+      // setUserInfo(tokenDecode);
       router.replace(redirectPath);
     } catch (error) {
       toastError(extractErrorMessage(error));

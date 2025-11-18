@@ -1,4 +1,3 @@
-import { ID } from './common';
 import { AreaModel, BuildingModel, FloorModel, NewsAttachmentModel, NewsBuildingModel, NewsModel, RequestAccessLogModel, RequestAccessModel, RequestAccessPeopleAttachmentModel, RequestAccessPeopleModel } from "./model";
 
 export type LoginDto = {
@@ -24,25 +23,38 @@ export type NewsFilterDto = {
   isActive: number;
 }
 
+export type RequestAccessFilterDto = {
+  keyword: string;
+}
+
 export type NewsAttachmentDto = NewsAttachmentModel & {
   base64: string;
   createdByName: string;
 }
 
-export type NewsDto = NewsModel & {
+export type NewsExtended = NewsModel & {
   newsTypeNameTH: string;
   newsTypeNameEN: string;
   createdByName: string;
   updatedByName: string;
+}
+
+export type NewsDto = NewsExtended & {
   newsAttachment: NewsAttachmentDto[]
+}
+
+export type NewsDtoExtended = {
+  news: NewsDto;
 }
 
 export type NewsBuildingDto = NewsBuildingModel & {
   createdByName: string;
 }
 
-export type NewsDetailDto = NewsDto & {
+export type NewsDetailDto = {
+  news: NewsExtended;
   newsBuilding: NewsBuildingDto[];
+  newsAttachment: NewsAttachmentDto[];
 }
 
 export type SaveNewsBuildingDto = {
@@ -125,7 +137,7 @@ export type SaveRequestAccessDto = {
 }
 
 export type ChangeRequestAccessStatusDto = {
-  requestAccessId: number;
+  requestNo: string;
   remark: string;
   userId: number;
   accessActivityId: string;
@@ -133,7 +145,7 @@ export type ChangeRequestAccessStatusDto = {
 
 export type ChangeRequestMaintainStatusDto = {
   requestMaintain: {
-    id: number;
+    requestNo: string;
     satisfaction: number;
     suggestion: string;
   }

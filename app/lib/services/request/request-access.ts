@@ -1,12 +1,11 @@
 "use client"
 
-import { saveNewsAPI } from "../../api/config/news";
-import { saveRequestAccessAPI } from "../../api/request";
-import { NewsFilterDto, NewsDto, SaveNewsDto, NewsDetailDto, SaveNewsDetailDto, RequestAccessDto, SaveRequestAccessDto, RequestAccessDetailDto } from "../../types";
+import { changeRequestAccessStatusAPI, getRequestAccessAPI, getRequestAccessDetailAPI, saveRequestAccessAPI } from "../../api/request";
+import { RequestAccessDto, SaveRequestAccessDto, RequestAccessDetailDto, ChangeRequestAccessStatusDto } from "../../types";
 import { errorValidation } from "../../utils";
 
 export const getRequestAccess = async (): Promise<RequestAccessDto[]> => {
-    const res: RequestAccessDto[] = [] //await getRequestAccessAPI();
+    const res = await getRequestAccessAPI();
     errorValidation(res);
 
     const data: RequestAccessDto[] = res;
@@ -14,7 +13,7 @@ export const getRequestAccess = async (): Promise<RequestAccessDto[]> => {
 }
 
 export const getRequestAccessDetail = async (id: number): Promise<RequestAccessDetailDto> => {
-    const res: RequestAccessDetailDto = {} as RequestAccessDetailDto //await getRequestAccessAPI(id);
+    const res = await getRequestAccessDetailAPI(id);
     errorValidation(res);
 
     const data: RequestAccessDetailDto = res;
@@ -23,6 +22,14 @@ export const getRequestAccessDetail = async (id: number): Promise<RequestAccessD
 
 export const saveRequestAccess= async (req: SaveRequestAccessDto) => {
     const res = await saveRequestAccessAPI(req);
+    errorValidation(res);
+
+    const data = res.id;
+    return data;
+}
+
+export const changeRequestAccessStatus= async (req: ChangeRequestAccessStatusDto) => {
+    const res = await changeRequestAccessStatusAPI(req);
     errorValidation(res);
 
     const data = res;

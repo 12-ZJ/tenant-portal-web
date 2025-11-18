@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SelectField, SearchInput, ActionButton } from "../common";
 import { NewsFilterDto, Option  } from "@/app/lib/types";
 import DatePicker from "../common/date-picker";
-import { createChangeHandler, handleApiErrorWithRedirect, handleRangeDateChange } from "@/app/lib/utils";
+import { createChangeHandler, formatDate, handleApiErrorWithRedirect, handleRangeDateChange } from "@/app/lib/utils";
 import { useRouter } from "next/navigation";
 import { useLoadingStore, useUserStore } from "@/app/store";
 import { defaultNewsFilter } from "@/app/lib/constants/default";
@@ -79,7 +79,7 @@ const NewsFilter = ({ onSearch, onCreate }: Props) => {
                             placeholder={"Display Date"}
                             start={filter.displayDate ? new Date(filter.displayDate) : null}
                             end={filter.displayDate ? new Date(filter.displayDate) : null}
-                            onChange={(value) => handleRangeDateChange(value, setFilter, "displayDate")} 
+                            onChange={(e) => handleMultiChange({displayDate: formatDate(e.startDate, "YYYY-MM-DD")})}
                         />
 
                         <SelectField

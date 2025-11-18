@@ -14,7 +14,6 @@ export const extractErrorMessage = (error: unknown): string => {
 
 export function errorValidation(res: unknown) {
   if (res && typeof res === "object" && "err_code" in res && "err_msg" in res) {
-    console.log("throw", res);
     const error = new Error(JSON.stringify({ code: res.err_code, message: res.err_msg }));
     error.name = "ApiError";
     throw error;

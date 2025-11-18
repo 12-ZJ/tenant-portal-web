@@ -2,11 +2,11 @@
 
 import { InputLayout } from "../form/input-layout";
 import { useCallback, useEffect, useState } from "react";
-import { DropdownDto, ExportDto, Option, RequestAccessDetailDto, SaveRequestAccess, SaveRequestAccessDto, SaveRequestAccessPeople, SaveRequestAccessPeopleAttachment } from "@/app/lib/types";
+import { ChangeRequestAccessStatusDto, DropdownDto, ExportDto, Option, RequestAccessDetailDto, SaveRequestAccess, SaveRequestAccessDto, SaveRequestAccessPeople, SaveRequestAccessPeopleAttachment } from "@/app/lib/types";
 import { useRouter } from "next/navigation";
 import { useLoadingStore, useUserStore } from "@/app/store";
-import { createChangeHandler, createChangeHandlerArray, formatDate, getInputClass, handleApiErrorWithRedirect, removeByIndex, toastWarning } from "@/app/lib/utils";
-import { ACCESS_STATUS, defaultRequestAccess, defaultRequestAccessDetail, defaultRequestAccessPeople } from "@/app/lib/constants";
+import { createChangeHandler, createChangeHandlerArray, formatDate, getInputClass, handleApiErrorWithRedirect, removeByIndex, toastSuccess, toastWarning } from "@/app/lib/utils";
+import { ACCESS_ACTIVITY, ACCESS_STATUS, defaultRequestAccess, defaultRequestAccessDetail, defaultRequestAccessPeople, TOAST_DURATION_MS } from "@/app/lib/constants";
 import { ActionButton, IconButton, SelectField } from "../common";
 import { getDropdown } from "@/app/lib/services/config/static";
 import { useFormSubmit } from "@/app/lib/hooks/form";
@@ -16,8 +16,7 @@ import { downloadBase64File, downloadLocalFile, fileToBase64 } from "@/app/lib/u
 import Upload from "../common/upload";
 import { AiOutlinePaperClip } from "react-icons/ai";
 import RequestHeader from "./request-header";
-import { getRequestAccessDetail, saveRequestAccess } from "@/app/lib/services/request";
-import DownloadQrModal from "./qr";
+import { changeRequestAccessStatus, getRequestAccessDetail, saveRequestAccess } from "@/app/lib/services/request";
 
 const defaultRequestError: Partial<Record<keyof SaveRequestAccess, string>> = {
     buildingId: "",
@@ -44,6 +43,7 @@ interface Props {
 
 export default function RequestAccessForm({ id, isSubmit }: Props) {
     const [mounted, setMounted] = useState(false);
+    const [requestId, setRequestId] = useState<number>(id);
     const [dataSource, setDataSource] = useState<RequestAccessDetailDto>();
     const [requestInfo, setRequestInfo] = useState<SaveRequestAccess>(defaultRequestAccess);
     const [peopleInfo, setPeopleInfo] = useState<SaveRequestAccessPeople[]>([]);
@@ -54,17 +54,18 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
     const { fetching, processing, setFetching, setProcessing } = useLoadingStore((state) => state);
     const { userId } = useUserStore((state) => state);
     const [isOpenQr, setIsOpenQr] = useState(false);
+    const [approving, setApproving] = useState(false);
+    const [rejecting, setRejecting] = useState(false);
 
     const router = useRouter();
 
-    const { handleSubmit } = useFormSubmit<SaveRequestAccessDto>();
     const { multi: handleRequestMultiChange } = createChangeHandler(requestInfo, setRequestInfo);
     const { multiAt: handlePeopleMultiChange } = createChangeHandlerArray(peopleInfo, setPeopleInfo);
 
     const fetchData = useCallback(async () => {
         try {
             const dropdown = await getDropdown({isActive: 1});
-            const res = await getRequestAccessDetail(id);
+            const res = await getRequestAccessDetail(requestId);
             const request = res.requestAccess ?? [];
             const people = res.requestAccessPeople ?? [defaultRequestAccessPeople];
 
@@ -96,7 +97,7 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
         } finally {
             setFetching(false);
         }
-    }, [id, router]);
+    }, [requestId, router]);
 
     useEffect(() => {
         setMounted(true);
@@ -165,7 +166,7 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
 
         if (files.length === 0) return;
 
-        const updatedAttachList: SaveRequestAccessPeopleAttachment[] = await Promise.all(
+        const newAttachmentList: SaveRequestAccessPeopleAttachment[] = await Promise.all(
             files.map(async (e) => ({
                 id: 0,
                 requestAccessPeopleId: id,
@@ -174,8 +175,13 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
             }))
         );
 
-        handlePeopleMultiChange(index, {requestAccessPeopleAttachment: updatedAttachList || []});
-        setUploadFiles(files);
+        const updatedAttachList = [
+            ...(peopleInfo[index].requestAccessPeopleAttachment ?? []),
+            ...newAttachmentList
+        ];
+
+        handlePeopleMultiChange(index, { requestAccessPeopleAttachment: updatedAttachList });
+        setUploadFiles(prev => [...(prev ?? []), ...files]);
     };
 
     const handleRemoveAttachment = (index: number, filename: string) => {
@@ -235,7 +241,7 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
         return isValid;
     };
 
-    const postData = async () => {
+    const submitData = async () => {
         const data: SaveRequestAccessDto = {
             requestAccess: {
                 id: id,
@@ -244,30 +250,89 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                 floorId: requestInfo.floorId,
                 areaId: requestInfo.areaId,
                 accessDate: requestInfo.accessDate,
-                note: requestInfo.note,
+                note: requestInfo.note ?? "",
                 accessStatusId: requestInfo.accessStatusId,
             },
             requestAccessPeople: peopleInfo,
             userId: userId
         };
-        await saveRequestAccess(data);
+        console.log("submit payload:", data);
+        const newId = await saveRequestAccess(data);
+    
+        console.log("id", newId)
+        setRequestId(newId);
     };
 
-    const handleSave = (e: React.FormEvent) => {
-        handleSubmit({ e, validateForm, onSave: postData, processing, setProcessing, redirectPath: "/request-access", });
+    const handleAfterDownloadQR = () => {
+        if (!isSubmit) { return; }
+
+        setProcessing(false);
+        setIsOpenQr(false);
+        setRequestId(0);
+
+    }
+
+    const handleSubmitRequest = async () => {
+        try {
+            const isValid = validateForm();
+            if (!isValid) return;
+
+            setProcessing(true);
+            await submitData();
+            toastSuccess("Data submitted successfully.");
+            setIsOpenQr(true);
+        } catch (error) {
+            handleApiErrorWithRedirect(error, router);
+        } finally {
+            setTimeout(() => {
+                setIsOpenQr(true);
+            }, TOAST_DURATION_MS);
+        }
+    }
+
+    const reviewData = async (act: string) => {
+        const data: ChangeRequestAccessStatusDto = {
+            requestNo: requestInfo.requestNo,
+            remark: "",
+            userId: userId,
+            accessActivityId: act
+        };
+        console.log("submit payload:", data);
+        await changeRequestAccessStatus(data);
+    };
+
+    const handleReviewRequest = async (act: string) => {
+        try {
+            setProcessing(true);
+            setApproving(act === ACCESS_ACTIVITY.APPROVE);
+            setRejecting(act === ACCESS_ACTIVITY.REJECT);
+            await reviewData(act);
+            toastSuccess("Operation completed successfully.");
+            setTimeout(() => router.replace("/request-access"), TOAST_DURATION_MS);
+        } catch (error) {
+            handleApiErrorWithRedirect(error, router);
+        } finally {
+            setTimeout(() => {
+                setProcessing(false);
+                setApproving(false);
+                setRejecting(false);
+            }, TOAST_DURATION_MS);
+        }
     }
 
     const disable = processing || !isSubmit;
 
     return (
-        <form onSubmit={handleSave} className="px-6 py-8 space-y-5">
+        <form className="px-6 py-8 space-y-5">
             <RequestHeader
                 id={id}
                 title={`Request Access`} 
                 requestNo={requestInfo.requestNo} 
                 statusId={requestInfo.accessStatusId} 
                 statusName={dataSource?.requestAccess?.accessStatusNameEN ?? ""}
-                openQr={isOpenQr}        
+                openQr={isOpenQr}
+                isSubmit={isSubmit}
+                onDownload={handleAfterDownloadQR}    
             />
 
             <div className="flex gap-5">
@@ -276,8 +341,8 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                         <InputLayout label={"Access Date"} error={requestErrors.accessDate}>
                             <DatePicker
                                 placeholder={"Access Date"}
-                                useRange={true}
                                 disable={disable}
+                                min={new Date()}
                                 start={requestInfo.accessDate ? new Date(requestInfo.accessDate) : null}
                                 end={requestInfo.accessDate ? new Date(requestInfo.accessDate) : null}
                                 onChange={(e) => handleRequestMultiChange({
@@ -293,7 +358,11 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                                 disabled={disable}
                                 value={String(requestInfo?.buildingId)}
                                 options={buildingOption} 
-                                selectAction={(e) => handleRequestMultiChange({buildingId: Number(e?.value)})}
+                                selectAction={(e) => handleRequestMultiChange({
+                                    buildingId: Number(e?.value),
+                                    floorId: 0,
+                                    areaId: 0
+                                })}
                                 error={requestErrors.buildingId}                 
                             />
                         </InputLayout>
@@ -304,7 +373,10 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                                 disabled={disable}
                                 value={String(requestInfo?.floorId)}
                                 options={floorOption} 
-                                selectAction={(e) => handleRequestMultiChange({floorId: Number(e?.value)})}
+                                selectAction={(e) => handleRequestMultiChange({
+                                    floorId: Number(e?.value),
+                                    areaId: 0
+                                })}
                                 error={requestErrors.floorId}                 
                             />
                         </InputLayout>
@@ -322,10 +394,10 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                         <InputLayout label={"Note"} isRequired={false} error={requestErrors.note}>
                             <textarea className={getInputClass(!!requestErrors.note)}
                                 rows={5}
-                                maxLength={100}
+                                maxLength={1000}
                                 disabled={disable}
                                 onChange={(e) => handleRequestMultiChange({note: e.target.value})}
-                                value={requestErrors.note}
+                                value={requestInfo.note ?? ""}
                             />
                         </InputLayout>
                     </div>
@@ -385,7 +457,7 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                                 <InputLayout label={"Phone number"} error={peopleErros[index].phoneNumber}>
                                     <input className={getInputClass(!!peopleErros[index].phoneNumber)}
                                         type="text"
-                                        maxLength={100}
+                                        maxLength={15}
                                         disabled={disable}
                                         onChange={(e) => handlePeopleMultiChange(index, {phoneNumber: e.target.value})}
                                         value={item.phoneNumber}
@@ -429,11 +501,11 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
                 </div>
             </div>
             <div className="w-full flex justify-center gap-4">
-                { !disable && <ActionButton type="submit" className="primary-button w-52" label="Save"/> }
-                { requestInfo.accessStatusId !== ACCESS_STATUS.PENDING && 
+                { !disable && <ActionButton type="button" className="primary-button w-52" label="Submit" onClick={() => handleSubmitRequest()}/> }
+                { requestInfo.accessStatusId === ACCESS_STATUS.PENDING && 
                 <>
-                    <ActionButton type="submit" className="approve-button w-52" label="Approve"/> 
-                    <ActionButton type="submit" className="reject-button w-52" label="Reject"/> 
+                    <ActionButton type="button" className="approve-button w-52" label="Approve" pending={approving} onClick={() => handleReviewRequest(ACCESS_ACTIVITY.APPROVE)}/> 
+                    <ActionButton type="button" className="reject-button w-52" label="Reject" pending={rejecting} onClick={() => handleReviewRequest(ACCESS_ACTIVITY.REJECT)}/> 
                 </> }
             </div>
         </form>

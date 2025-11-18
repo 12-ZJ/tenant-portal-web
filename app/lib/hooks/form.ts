@@ -30,10 +30,9 @@ export const useFormSubmit = <T>() => {
 
     e.preventDefault();
 
-    const isValid = validateForm();
+    const valid = validateForm();
 
-    //const isValid = Object.values(true).every((v) => !v);
-    console.log(isValid)
+    const isValid = valid;
     if (!isValid) return;
 
     try {

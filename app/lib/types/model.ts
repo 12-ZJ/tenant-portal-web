@@ -15,8 +15,8 @@ export type NewsModel = {
     id: number;
     topicTH: string;
     topicEN: string;
-    detailTh: string;
-    detailEn: string;
+    detailTH: string;
+    detailEN: string;
     newsTypeId: string;
     displayDateStart: string;
     displayDateEnd: string;

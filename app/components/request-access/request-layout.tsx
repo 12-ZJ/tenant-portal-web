@@ -24,9 +24,10 @@ const RequestForm = ({ title, requestNo = "", statusId, statusName, sideTopForm,
                 title={`${title}`}
                 requestNo={requestNo}
                 statusId={statusId}
-                statusName={statusName} 
-                id={0} 
-                openQr={false} />
+                statusName={statusName}
+                id={0}
+                openQr={false} 
+                onDownload={() => console.log("Download QR")} />
             <div className="w-full flex justify-center gap-4">
                 <ActionButton type="submit" className="primary-button w-52" label="Save"/>
             </div>

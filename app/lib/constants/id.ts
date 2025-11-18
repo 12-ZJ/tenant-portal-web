@@ -1,9 +1,3 @@
-export const ROLE = {
-  REQUESTER: 'REQUESTER',
-  APPROVER: 'APPROVER',
-  ADMIN: 'ADMIN',
-} as const;
-
 export const ACCESS_STATUS = {
   PENDING: 'PENDING',
   APPROVE: 'APPROVE',
@@ -14,4 +8,11 @@ export const ACCESS_ACTIVITY = {
   SUBMIT: 'SUBMIT',
   APPROVE: 'APPROVE',
   REJECT: 'REJECT',
+} as const;
+
+export const MAINTAIN_ACTIVITY = {
+  SUBMIT: 'SUBMIT',
+  IN_PRO: 'IN_PRO',
+  COMPLETE: 'COMPLETE',
+  SUBMIT_FEED: 'SUBMIT_FEED',
 } as const;
