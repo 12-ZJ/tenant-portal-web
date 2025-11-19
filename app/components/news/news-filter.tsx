@@ -57,7 +57,7 @@ const NewsFilter = ({ onSearch, onCreate }: Props) => {
                     <div className="w-4/6 h-fit flex items-center space-x-3">
                         <div className="w-2/5">
                             <SearchInput
-                                placeholder="Request No."
+                                placeholder="Keyword"
                                 onChange={(e) => handleMultiChange({keyword: e.target.value})}
                                 value={filter?.keyword}
                             />

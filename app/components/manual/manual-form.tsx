@@ -23,27 +23,6 @@ export default function ManualForm() {
         }
 
         try {
-            const data: ChangeRequestAccessStatusDto = {
-                requestNo: accessNo,
-                remark: "",
-                userId: userId,
-                accessActivityId: act
-            };
-            console.log("payload:", data);
-            await changeRequestAccessStatus(data);
-            toastSuccess("Operation completed successfully.");
-        } catch (error) {
-            handleApiErrorWithRedirect(error, router);
-        }
-    }
-
-    const handleAccessChange = async (act: string) => {
-        if (!accessNo) {
-            toastWarning("Please enter request access number.");
-            return; 
-        }
-
-        try {
             const data: ChangeRequestMaintainStatusDto = {
                 requestMaintain: {
                     requestNo: maintainNo,
@@ -56,6 +35,27 @@ export default function ManualForm() {
             };
             console.log("payload:", data);
             await changeRequestMaintainStatus(data);
+            toastSuccess("Operation completed successfully.");
+        } catch (error) {
+            handleApiErrorWithRedirect(error, router);
+        }
+    }
+
+    const handleAccessChange = async (act: string) => {
+        if (!accessNo) {
+            toastWarning("Please enter request maintain number.");
+            return; 
+        }
+
+        try {
+            const data: ChangeRequestAccessStatusDto = {
+                requestNo: accessNo,
+                remark: "",
+                userId: userId,
+                accessActivityId: act
+            };
+            console.log("payload:", data);
+            await changeRequestAccessStatus(data);
             toastSuccess("Operation completed successfully.");
         } catch (error) {
             handleApiErrorWithRedirect(error, router);
