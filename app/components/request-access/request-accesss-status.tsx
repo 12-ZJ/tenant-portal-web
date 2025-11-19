@@ -51,9 +51,9 @@ export default function RequestAccessStatus() {
 
     if (!mounted || fetching) return null;
 
-    const buildingName = dropdownMaster?.building?.find(item => item.id === dataSource?.requestAccess.buildingId)?.nameEN ?? "";
-    const floorName = dropdownMaster?.floor?.find(item => item.id === dataSource?.requestAccess.floorId)?.nameEN ?? "";
-    const areaName = dropdownMaster?.area?.find(item => item.id === dataSource?.requestAccess.areaId)?.nameEN ?? "";
+    const buildingName = dropdownMaster?.building?.find(item => item.id === dataSource?.requestAccess?.buildingId)?.nameEN ?? "";
+    const floorName = dropdownMaster?.floor?.find(item => item.id === dataSource?.requestAccess?.floorId)?.nameEN ?? "";
+    const areaName = dropdownMaster?.area?.find(item => item.id === dataSource?.requestAccess?.areaId)?.nameEN ?? "";
 
     const { bg, text } = getStatusStyle(dataSource?.requestAccess?.accessStatusId ?? "");
     
@@ -111,7 +111,7 @@ export default function RequestAccessStatus() {
                         {dataSource?.requestAccessPeople?.map((item, index) => {
                             const genderName = dropdownMaster?.gender.find(e => e.id === item.genderId)?.nameEN;
                             return (
-                                <div key={item.id} className={`space-y-2 py-4 ${(index+1) < dataSource.requestAccessPeople.length ? "border-b" : ""}`}>
+                                <div key={item.id} className={`space-y-2 py-4 ${(index+1) < dataSource?.requestAccessPeople?.length ? "border-b" : ""}`}>
                                     <div className="flex gap-4">
                                         <span className="font-medium w-[30%] flex justify-end">Gender : </span>
                                         <span className="w-[70%]">{genderName}</span>

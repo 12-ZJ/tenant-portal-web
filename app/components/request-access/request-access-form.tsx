@@ -321,7 +321,7 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
     return (
         <form className="px-6 py-8 space-y-5">
             <RequestHeader
-                id={id}
+                id={requestId}
                 title={`Request Access`} 
                 requestNo={requestInfo.requestNo} 
                 statusId={requestInfo.accessStatusId} 
