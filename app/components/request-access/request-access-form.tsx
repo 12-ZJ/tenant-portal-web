@@ -283,10 +283,6 @@ export default function RequestAccessForm({ id, isSubmit }: Props) {
             setIsOpenQr(true);
         } catch (error) {
             handleApiErrorWithRedirect(error, router);
-        } finally {
-            setTimeout(() => {
-                setIsOpenQr(true);
-            }, TOAST_DURATION_MS);
         }
     }
 
