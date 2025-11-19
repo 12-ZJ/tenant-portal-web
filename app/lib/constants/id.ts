@@ -16,3 +16,15 @@ export const MAINTAIN_ACTIVITY = {
   COMPLETE: 'COMPLETE',
   SUBMIT_FEED: 'SUBMIT_FEED',
 } as const;
+
+export const INVOICE_STATUS = {
+  UNPAID: "UNPAID",
+  PARTIAL: "PARTIAL",
+  PAID: "PAID"
+} as const;
+
+export const INVOICE_ACTIVITY = {
+  UNPAID: "UNPAID",
+  PARTIAL: "PARTIAL",
+  PAID: "PAID"
+} as const;

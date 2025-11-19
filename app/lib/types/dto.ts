@@ -1,4 +1,4 @@
-import { AreaModel, BuildingModel, FloorModel, NewsAttachmentModel, NewsBuildingModel, NewsModel, RequestAccessLogModel, RequestAccessModel, RequestAccessPeopleAttachmentModel, RequestAccessPeopleModel } from "./model";
+import { AreaModel, BuildingModel, FloorModel, InvoiceModel, NewsAttachmentModel, NewsBuildingModel, NewsModel, RequestAccessLogModel, RequestAccessModel, RequestAccessPeopleAttachmentModel, RequestAccessPeopleModel } from "./model";
 
 export type LoginDto = {
   email: string;
@@ -171,5 +171,17 @@ export type DropdownDto = {
     floorId: number; 
   })[];
   gender: StaticDto[];
+};
+
+export type InvoiceDto = InvoiceModel & {
+  invoiceStatusNameTH: string;
+  invoiceStatusNameEN: string;
+  createdByName: string;
+  updatedByName: string;
+};
+
+export type SaveInvoiceDto = Omit<InvoiceModel, "id" | "invoiceStatusId" | "amount" | "createdOn" | "createdBy" | "updatedOn" | "updatedBy"> & { 
+  userId: number,
+  invoiceActivityId: string 
 };
 

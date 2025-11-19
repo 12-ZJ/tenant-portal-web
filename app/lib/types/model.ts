@@ -122,3 +122,14 @@ export type NewsBuildingModel = {
     createdOn: string;
     createdBy: number;
 }
+
+export interface InvoiceModel {
+    id: number;
+    invoiceNo: string;
+    amount: number;
+    invoiceStatusId: string;
+    createdOn: string;
+    createdBy: number;
+    updatedOn: string;
+    updatedBy: number;
+}
